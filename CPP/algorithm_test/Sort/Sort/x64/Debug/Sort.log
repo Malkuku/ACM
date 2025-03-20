@@ -1,0 +1,12 @@
+﻿  BinarySort.cpp
+  getRadomNumber.cpp
+  InsertSort.cpp
+  MergeSort.cpp
+  Print.cpp
+  QuickSort.cpp
+  ShellSort.cpp
+  test.cpp
+  test2.cpp
+A:\Program\ACM\CPP\algorithm_test\Sort\Sort\test2.cpp(5,29): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+  正在生成代码...
+  Sort.vcxproj -> A:\Program\ACM\CPP\x64\Debug\Sort.exe

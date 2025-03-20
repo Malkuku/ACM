@@ -1,0 +1,3 @@
+﻿  背包.cpp
+A:\Program\algorithm_test\DP\背包.cpp(19,19): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+  DP.vcxproj -> A:\Program\algorithm_test\DP\Debug\DP.exe

@@ -1,0 +1,10 @@
+﻿  CF 2024.2.8.cpp
+  基础训练营1.cpp
+  基础训练营2.cpp
+  基础训练营3.cpp
+  基础训练营4.cpp
+  基础训练营5.cpp
+A:\Program\ACM\contest\2024\2024\基础训练营5.cpp(489,19): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+  基础训练营6.cpp
+  正在生成代码...
+  2024.vcxproj -> A:\Program\ACM\contest\2024\Debug\2024.exe

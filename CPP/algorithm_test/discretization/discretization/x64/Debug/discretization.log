@@ -1,0 +1,4 @@
+﻿  test.cpp
+A:\Program\ACM\CPP\algorithm_test\discretization\discretization\test.cpp(23,23): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+A:\Program\ACM\CPP\algorithm_test\discretization\discretization\test.cpp(32,25): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+  discretization.vcxproj -> A:\Program\ACM\CPP\x64\Debug\discretization.exe

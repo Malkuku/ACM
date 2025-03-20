@@ -1,0 +1,6 @@
+﻿  LCA.cpp
+A:\Program\ACM\CPP\algorithm_test\Graph\Project1\Project1\LCA.cpp(241,19): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+A:\Program\ACM\CPP\algorithm_test\Graph\Project1\Project1\LCA.cpp(242,20): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+A:\Program\ACM\CPP\algorithm_test\Graph\Project1\Project1\LCA.cpp(282): error C4700: 使用了未初始化的局部变量“x”
+A:\Program\ACM\CPP\algorithm_test\Graph\Project1\Project1\LCA.cpp(282): error C4700: 使用了未初始化的局部变量“y”
+A:\Program\ACM\CPP\algorithm_test\Graph\Project1\Project1\LCA.cpp(282): error C4700: 使用了未初始化的局部变量“z”

@@ -1,0 +1,3 @@
+﻿  BFS.cpp
+A:\Program\algorithm_test\search\Project1\BFS.cpp(169,21): warning C4018: “<”: 有符号/无符号不匹配
+  Project1.vcxproj -> A:\Program\algorithm_test\search\Debug\Project1.exe

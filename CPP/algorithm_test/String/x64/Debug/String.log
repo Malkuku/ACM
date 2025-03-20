@@ -1,0 +1,4 @@
+﻿  高精度.cpp
+A:\Program\ACM\CPP\String\高精度.cpp(16,19): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+A:\Program\ACM\CPP\String\高精度.cpp(154,38): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+  String.vcxproj -> A:\Program\ACM\CPP\x64\Debug\String.exe
