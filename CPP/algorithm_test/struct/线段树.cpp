@@ -1620,42 +1620,51 @@
 // }
 
 /*hdu3397 Sequence operation*/
-/*2025.3.20*/
+/*2025.3.21 题解*/
 #include<bits/stdc++.h>
 using namespace std;
 #define ll long long
 const int N = 1e5+10;
 struct{
-    int pre,suf,len,num,add1,add2,add3; //记录1
-    int pre0,suf0;
-    void clear(){add1 = add2 = add3 = 0;};
+    int pre1,suf1,len1,sum;
+    int pre0,suf0,len0;
+    int same,rev;
 }tr[N<<2];
 int a[N];
 void push_up(int p,int len){
-    tr[p].pre = tr[p<<1].pre;
-    tr[p].suf = tr[p<<1|1].suf;
-    tr[p].pre0 = tr[p<<1].pre0;
-    tr[p].suf0 = tr[p<<1|1].suf0;
-    if(tr[p].pre == len - len/2){
-        tr[p].pre += tr[p<<1|1].pre;
-    }
-    if(tr[p].suf == len/2){
-        tr[p].suf += tr[p<<1].suf;
-    }
-    if(tr[p].pre0 == len - len/2){
-        tr[p].pre0 += tr[p<<1|1].pre0;
-    }
-    if(tr[p].suf0 == len/2){
-        tr[p].suf0 += tr[p<<1].suf0;
-    }
-    tr[p].num = tr[p<<1].num + tr[p<<1|1].num;
-    tr[p].len = max(tr[p].pre,tr[p].suf);
+    tr[p].sum = tr[p<<1].sum + tr[p<<1|1].sum;
+    tr[p].suf0 = tr[p<<1].suf0;tr[p].suf1 = tr[p<<1].suf1;
+    tr[p].pre0 = tr[p<<1|1].pre0;tr[p].pre1 = tr[p<<1|1].pre1;
+    if(tr[p<<1].suf0 == len-len/2) tr[p].suf0 += tr[p<<1|1].suf0;
+    if(tr[p<<1].suf1 == len-len/2) tr[p].suf1 += tr[p<<1|1].suf1;
+    if(tr[p<<1|1].pre0 == len/2) tr[p].pre0 += tr[p<<1].pre0;
+    if(tr[p<<1|1].pre1 == len/2) tr[p].pre1 += tr[p<<1].pre1;
+    tr[p].len0 = max(max(tr[p<<1].len0,tr[p<<1|1].len0),tr[p<<1].pre0+tr[p<<1|1].suf0);
+    tr[p].len1 = max(max(tr[p<<1].len1,tr[p<<1|1].len1),tr[p<<1].pre1+tr[p<<1|1].suf1);
 }
+void swa(int len,int p){
+    tr[p].sum = len - tr[p].sum;
+    swap(tr[p].pre0,tr[p].pre1);
+    swap(tr[p].suf0,tr[p].suf1);    
+    swap(tr[p].len0,tr[p].len1);
+}
+
+void push_down(int p,int pl,int pr){
+    int mid = (pl + pr) >> 1;
+    if(tr[p].same != -1){
+        tr[p<<1].rev = tr[p<<1|1].rev = 0;
+        tr[p<<1].same  = tr[p<<1|1].same = tr[p].same;
+        if(tr[p].same){
+            tr[]
+        }
+    }
+}
+
 void build(int p,int pl,int pr){
+    tr[p].clear();
     if(pl == pr){
         tr[p].len = tr[p].suf = tr[p].pre = tr[p].num = a[pl];
-        tr[p].pre0 = tr[p].suf0 = 1^a[pl];
-        tr[p].clear();
+        tr[p].pre0 = tr[p].suf0 = tr[p].num0 = tr[p].len0 = 1^a[pl];
         return;
     }
     int mid = (pl + pr) >> 1;
@@ -1666,34 +1675,28 @@ void build(int p,int pl,int pr){
 void addtag(int p,int len){
     if(tr[p].add3){
         swap(tr[p].add1,tr[p].add2);
-        tr[p].num = len - tr[p].num;
+        swap(tr[p].len,tr[p].len0);
+        swap(tr[p].num,tr[p].num0);
         swap(tr[p].pre0,tr[p].pre);
         swap(tr[p].suf0,tr[p].suf);
-        tr[p].len = max(tr[p].pre,tr[p].suf);
     }
     if(tr[p].add1){
         tr[p].num = tr[p].len = tr[p].pre = tr[p].suf = 0;
-        tr[p].pre0 = tr[p].suf0 = len;
+        tr[p].num0 = tr[p].len0 = tr[p].pre0 = tr[p].suf0 = len;
     }
     if(tr[p].add2){
         tr[p].num = tr[p].len = tr[p].pre = tr[p].suf = len;
-        tr[p].pre0 = tr[p].suf0 = 0;
+        tr[p].num0 = tr[p].len0 = tr[p].pre0 = tr[p].suf0 = 0;
     }
 }
 void push_down(int p,int pl,int pr){
-    tr[p<<1].add1 = tr[p<<1|1].add1 = tr[p].add1;
-    tr[p<<1].add2 = tr[p<<1|1].add2 = tr[p].add2;
-    tr[p<<1].add3 = tr[p<<1|1].add3 = tr[p].add3;
-    int mid = (pl + pr) >> 1;
-    addtag(p<<1,mid - pl + 1);
-    addtag(p<<1|1,pr - mid);
-    tr[p].clear();
+    
 }
 void update(int l,int r,int d,int p,int pl,int pr){
     if(l <= pl && r >= pr){
-        if(d == 3) tr[p].add3^=1;
-        if(d == 1) tr[p].add1 = 1,tr[p].add2 = 0;
-        if(d == 2) tr[p].add2 = 1,tr[p].add1 = 0;
+        if(d == 3) tr[p].add3^=1,swap(tr[p].add1,tr[p].add2);
+        if(d == 1) tr[p].clear(),tr[p].add1 = 1;
+        if(d == 2) tr[p].clear(),tr[p].add2 = 1;
         addtag(p,pr-pl+1);
         return;
     }
@@ -1755,6 +1758,160 @@ int main(){
         solve();
     }
 }
+/*2025.3.20 WA*/
+// #include<bits/stdc++.h>
+// using namespace std;
+// #define ll long long
+// const int N = 1e5+10;
+// struct{
+//     int pre,suf,len,num,add1,add2,add3; //记录1
+//     int pre0,suf0,len0,num0;
+//     void clear(){add1 = add2 = add3 = 0;};
+// }tr[N<<2];
+// int a[N];
+// void push_up(int p,int len){
+//     tr[p].pre = tr[p<<1].pre;
+//     tr[p].suf = tr[p<<1|1].suf;
+//     tr[p].pre0 = tr[p<<1].pre0;
+//     tr[p].suf0 = tr[p<<1|1].suf0;
+//     if(tr[p].pre == len - len/2){
+//         tr[p].pre += tr[p<<1|1].pre;
+//     }
+//     if(tr[p].suf == len/2){
+//         tr[p].suf += tr[p<<1].suf;
+//     }
+//     if(tr[p].pre0 == len - len/2){
+//         tr[p].pre0 += tr[p<<1|1].pre0;
+//     }
+//     if(tr[p].suf0 == len/2){
+//         tr[p].suf0 += tr[p<<1].suf0;
+//     }
+//     tr[p].num = tr[p<<1].num + tr[p<<1|1].num;
+//     tr[p].num0 = tr[p<<1].num0 + tr[p<<1|1].num0;
+//     tr[p].len = max(max(tr[p<<1].len,tr[p<<1|1].len),tr[p<<1].suf+tr[p<<1|1].pre);
+//     tr[p].len0 = max(max(tr[p<<1].len0,tr[p<<1|1].len0),tr[p<<1].suf0+tr[p<<1|1].pre0);
+// }
+// void build(int p,int pl,int pr){
+//     tr[p].clear();
+//     if(pl == pr){
+//         tr[p].len = tr[p].suf = tr[p].pre = tr[p].num = a[pl];
+//         tr[p].pre0 = tr[p].suf0 = tr[p].num0 = tr[p].len0 = 1^a[pl];
+//         return;
+//     }
+//     int mid = (pl + pr) >> 1;
+//     build(p<<1,pl,mid);
+//     build(p<<1|1,mid+1,pr);
+//     push_up(p,pr-pl+1);
+// }
+// void addtag(int p,int len){
+//     if(tr[p].add3){
+//         swap(tr[p].add1,tr[p].add2);
+//         swap(tr[p].len,tr[p].len0);
+//         swap(tr[p].num,tr[p].num0);
+//         swap(tr[p].pre0,tr[p].pre);
+//         swap(tr[p].suf0,tr[p].suf);
+//     }
+//     if(tr[p].add1){
+//         tr[p].num = tr[p].len = tr[p].pre = tr[p].suf = 0;
+//         tr[p].num0 = tr[p].len0 = tr[p].pre0 = tr[p].suf0 = len;
+//     }
+//     if(tr[p].add2){
+//         tr[p].num = tr[p].len = tr[p].pre = tr[p].suf = len;
+//         tr[p].num0 = tr[p].len0 = tr[p].pre0 = tr[p].suf0 = 0;
+//     }
+// }
+// void push_down(int p,int pl,int pr){
+//     if(tr[p].add1){
+//         tr[p<<1].clear(),tr[p<<1|1].clear();
+//         tr[p<<1].add1 = tr[p<<1|1].add1 = tr[p].add1;
+//     }
+//     if(tr[p].add2){
+//         tr[p<<1].clear(),tr[p<<1|1].clear();
+//         tr[p<<1].add2 = tr[p<<1|1].add1 = tr[p].add2;
+//     }
+//     if(tr[p].add3){
+//         if(tr[p<<1].add1 || tr[p<<1].add2){
+//              swap(tr[p<<1].add1,tr[p<<1].add2);
+//         }else{
+//             tr[p<<1].add3 ^= 1;
+//         }
+//         if(tr[p<<1|1].add1 || tr[p<<1|1].add2){
+//             swap(tr[p<<1|1].add1,tr[p<<1|1].add2);
+//         }else{
+//             tr[p<<1|1].add3 ^= 1;
+//         }
+//     }
+//     int mid = (pl + pr) >> 1;
+//     addtag(p<<1,mid - pl + 1);
+//     addtag(p<<1|1,pr - mid);
+//     tr[p].clear();
+// }
+// void update(int l,int r,int d,int p,int pl,int pr){
+//     if(l <= pl && r >= pr){
+//         if(d == 3) tr[p].add3^=1,swap(tr[p].add1,tr[p].add2);
+//         if(d == 1) tr[p].clear(),tr[p].add1 = 1;
+//         if(d == 2) tr[p].clear(),tr[p].add2 = 1;
+//         addtag(p,pr-pl+1);
+//         return;
+//     }
+//     push_down(p,pl,pr);
+//     int mid = (pl + pr) >> 1;
+//     if(l <= mid) update(l,r,d,p<<1,pl,mid);
+//     if(r >= mid+1) update(l,r,d,p<<1|1,mid+1,pr);
+//     push_up(p,pr-pl+1);
+// }
+// int query_num(int l,int r,int p,int pl,int pr){
+//     if(l <= pl && r >= pr){
+//         return tr[p].num;
+//     }
+//     int ans = 0;
+//     push_down(p,pl,pr);
+//     int mid = (pl + pr) >> 1;
+//     if(l <= mid) ans += query_num(l,r,p<<1,pl,mid);
+//     if(r >= mid + 1) ans += query_num(l,r,p<<1|1,mid+1,pr);
+//     return ans;
+// }
+// int query_len(int l,int r,int p,int pl,int pr){
+//     if(l <= pl && r >= pr){
+//         return tr[p].len;
+//     }
+//     int ans = 0;
+//     push_down(p,pl,pr);
+//     int mid = (pl + pr) >> 1;
+//     if(l <= mid) ans = max(ans,query_len(l,r,p<<1,pl,mid));
+//     if(r >= mid + 1) ans = max(ans,query_len(l,r,p<<1|1,mid+1,pr));
+//     return ans;
+// }
+// void solve(){
+//     int n,m;cin >> n >> m;
+//     for(int i = 1; i <= n; i++){
+//         cin >> a[i];
+//     }
+//     build(1,1,n);
+//     for(int i = 1; i <= m; i++){
+//         int op,l,r;cin >> op >> l >> r;
+//         l++,r++;
+//         if(op == 0){
+//             update(l,r,1,1,1,n);
+//         }else if(op == 1){
+//             update(l,r,2,1,1,n);
+//         }else if(op == 2){
+//             update(l,r,3,1,1,n);
+//         }else if(op == 3){
+//             cout << query_num(l,r,1,1,n) << "\n";
+//         }else if(op == 4){
+//             cout << query_len(l,r,1,1,n) << "\n";
+//         }
+//     }
+// }
+// int main(){
+//     ios::sync_with_stdio(0);
+//     cin.tie(0);cout.tie(0);
+//     int t = 1;cin >> t;
+//     while(t--){
+//         solve();
+//     }
+// }
 
 ///* 综合练习 *///
 
