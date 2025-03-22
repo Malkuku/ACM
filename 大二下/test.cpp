@@ -1,186 +1,154 @@
 #include<bits/stdc++.h>
 using namespace std;
 #define ll long long
-const int N = 1e5 + 10;
+const int N = 1e5+3;
+const int mod = 10007;
 
 struct Node {
-    int pre, suf, len, num; // 前缀1，后缀1，最大连续1，区间1的个数
-    int pre0, suf0, len0, num0; // 前缀0，后缀0，最大连续0，区间0的个数
-    int add1, add2, add3; // 标记：add1-区间赋0，add2-区间赋1，add3-区间反转
-    void clear() { add1 = add2 = add3 = 0; } // 清空标记
-} tr[N << 2];
+    ll sum1, sum2, sum3;
+    ll add, muti, change;
+} tr[N<<2];
 
-int a[N];
-
-// 交换0和1的信息
-void swa(int p) {
-    swap(tr[p].pre, tr[p].pre0);
-    swap(tr[p].suf, tr[p].suf0);
-    swap(tr[p].len, tr[p].len0);
-    swap(tr[p].num, tr[p].num0);
+void push_up(int p) {
+    tr[p].sum1 = (tr[p<<1].sum1 + tr[p<<1|1].sum1) % mod;
+    tr[p].sum2 = (tr[p<<1].sum2 + tr[p<<1|1].sum2) % mod;
+    tr[p].sum3 = (tr[p<<1].sum3 + tr[p<<1|1].sum3) % mod;
 }
 
-// 上推更新区间信息
-void push_up(int p, int len) {
-    int l = p << 1, r = p << 1 | 1;
-    tr[p].num = tr[l].num + tr[r].num;
-    tr[p].num0 = tr[l].num0 + tr[r].num0;
-
-    // 更新前缀1和后缀1
-    tr[p].pre = tr[l].pre;
-    if (tr[l].pre == len - (len >> 1)) tr[p].pre += tr[r].pre;
-
-    tr[p].suf = tr[r].suf;
-    if (tr[r].suf == (len >> 1)) tr[p].suf += tr[l].suf;
-
-    // 更新前缀0和后缀0
-    tr[p].pre0 = tr[l].pre0;
-    if (tr[l].pre0 == len - (len >> 1)) tr[p].pre0 += tr[r].pre0;
-
-    tr[p].suf0 = tr[r].suf0;
-    if (tr[r].suf0 == (len >> 1)) tr[p].suf0 += tr[l].suf0;
-
-    // 更新最大连续1和最大连续0
-    tr[p].len = max(max(tr[l].len, tr[r].len), tr[l].suf + tr[r].pre);
-    tr[p].len0 = max(max(tr[l].len0, tr[r].len0), tr[l].suf0 + tr[r].pre0);
-}
-
-// 应用标记
-void addtag(int p, int len) {
-    if (tr[p].add1) { // 区间赋0
-        tr[p].num = tr[p].len = tr[p].pre = tr[p].suf = 0;
-        tr[p].num0 = tr[p].len0 = tr[p].pre0 = tr[p].suf0 = len;
-    } else if (tr[p].add2) { // 区间赋1
-        tr[p].num = tr[p].len = tr[p].pre = tr[p].suf = len;
-        tr[p].num0 = tr[p].len0 = tr[p].pre0 = tr[p].suf0 = 0;
-    } else if (tr[p].add3) { // 区间反转
-        swa(p);
+void build(int p, int pl, int pr) {
+    tr[p].add = tr[p].change = 0;
+    tr[p].muti = 1;
+    if (pl == pr) {
+        tr[p].sum1 = tr[p].sum2 = tr[p].sum3 = 0;
+        return;
     }
+    int mid = (pl + pr) >> 1;
+    build(p<<1, pl, mid);
+    build(p<<1|1, mid+1, pr);
+    push_up(p);
 }
 
-// 下推标记
 void push_down(int p, int pl, int pr) {
     int mid = (pl + pr) >> 1;
-    if (tr[p].add1 || tr[p].add2 || tr[p].add3) {
-        if (tr[p].add1) { // 区间赋0
-            tr[p << 1].clear(), tr[p << 1 | 1].clear();
-            tr[p << 1].add1 = tr[p << 1 | 1].add1 = 1;
-            tr[p << 1].add2 = tr[p << 1 | 1].add2 = 0;
-            tr[p << 1].add3 = tr[p << 1 | 1].add3 = 0;
-        } else if (tr[p].add2) { // 区间赋1
-            tr[p << 1].clear(), tr[p << 1 | 1].clear();
-            tr[p << 1].add2 = tr[p << 1 | 1].add2 = 1;
-            tr[p << 1].add1 = tr[p << 1 | 1].add1 = 0;
-            tr[p << 1].add3 = tr[p << 1 | 1].add3 = 0;
-        } else if (tr[p].add3) { // 区间反转
-            if (tr[p << 1].add1 || tr[p << 1].add2) {
-                swap(tr[p << 1].add1, tr[p << 1].add2);
-            } else {
-                tr[p << 1].add3 ^= 1;
-            }
-            if (tr[p << 1 | 1].add1 || tr[p << 1 | 1].add2) {
-                swap(tr[p << 1 | 1].add1, tr[p << 1 | 1].add2);
-            } else {
-                tr[p << 1 | 1].add3 ^= 1;
-            }
-        }
-        // 更新子节点的值
-        addtag(p << 1, mid - pl + 1);
-        addtag(p << 1 | 1, pr - mid);
-        tr[p].clear();
+    int lenl = mid - pl + 1;
+    int lenr = pr - mid;
+
+    if (tr[p].change) {
+        tr[p<<1].add = tr[p<<1|1].add = 0;
+        tr[p<<1].muti = tr[p<<1|1].muti = 1;
+        tr[p<<1].change = tr[p<<1|1].change = tr[p].change;
+
+        tr[p<<1].sum1 = lenl * tr[p].change % mod;
+        tr[p<<1].sum2 = lenl * tr[p].change % mod * tr[p].change % mod;
+        tr[p<<1].sum3 = lenl * tr[p].change % mod * tr[p].change % mod * tr[p].change % mod;
+
+        tr[p<<1|1].sum1 = lenr * tr[p].change % mod;
+        tr[p<<1|1].sum2 = lenr * tr[p].change % mod * tr[p].change % mod;
+        tr[p<<1|1].sum3 = lenr * tr[p].change % mod * tr[p].change % mod * tr[p].change % mod;
+
+        tr[p].change = 0;
+    }
+
+    if (tr[p].muti != 1) {
+        tr[p<<1].add = tr[p<<1].add * tr[p].muti % mod;
+        tr[p<<1|1].add = tr[p<<1|1].add * tr[p].muti % mod;
+
+        tr[p<<1].muti = tr[p<<1].muti * tr[p].muti % mod;
+        tr[p<<1|1].muti = tr[p<<1|1].muti * tr[p].muti % mod;
+
+        tr[p<<1].sum1 = tr[p<<1].sum1 * tr[p].muti % mod;
+        tr[p<<1].sum2 = tr[p<<1].sum2 * tr[p].muti % mod * tr[p].muti % mod;
+        tr[p<<1].sum3 = tr[p<<1].sum3 * tr[p].muti % mod * tr[p].muti % mod * tr[p].muti % mod;
+
+        tr[p<<1|1].sum1 = tr[p<<1|1].sum1 * tr[p].muti % mod;
+        tr[p<<1|1].sum2 = tr[p<<1|1].sum2 * tr[p].muti % mod * tr[p].muti % mod;
+        tr[p<<1|1].sum3 = tr[p<<1|1].sum3 * tr[p].muti % mod * tr[p].muti % mod * tr[p].muti % mod;
+
+        tr[p].muti = 1;
+    }
+
+    if (tr[p].add) {
+        tr[p<<1].add = (tr[p<<1].add + tr[p].add) % mod;
+        tr[p<<1|1].add = (tr[p<<1|1].add + tr[p].add) % mod;
+
+        tr[p<<1].sum3 = (tr[p<<1].sum3 + 3 * tr[p].add % mod * tr[p<<1].sum2 % mod + 3 * tr[p].add % mod * tr[p].add % mod * tr[p<<1].sum1 % mod + lenl * tr[p].add % mod * tr[p].add % mod * tr[p].add % mod) % mod;
+        tr[p<<1].sum2 = (tr[p<<1].sum2 + 2 * tr[p].add % mod * tr[p<<1].sum1 % mod + lenl * tr[p].add % mod * tr[p].add % mod) % mod;
+        tr[p<<1].sum1 = (tr[p<<1].sum1 + lenl * tr[p].add % mod) % mod;
+
+        tr[p<<1|1].sum3 = (tr[p<<1|1].sum3 + 3 * tr[p].add % mod * tr[p<<1|1].sum2 % mod + 3 * tr[p].add % mod * tr[p].add % mod * tr[p<<1|1].sum1 % mod + lenr * tr[p].add % mod * tr[p].add % mod * tr[p].add % mod) % mod;
+        tr[p<<1|1].sum2 = (tr[p<<1|1].sum2 + 2 * tr[p].add % mod * tr[p<<1|1].sum1 % mod + lenr * tr[p].add % mod * tr[p].add % mod) % mod;
+        tr[p<<1|1].sum1 = (tr[p<<1|1].sum1 + lenr * tr[p].add % mod) % mod;
+
+        tr[p].add = 0;
     }
 }
 
-
-
-// 建树
-void build(int p, int pl, int pr) {
-    tr[p].clear();
-    if (pl == pr) {
-        tr[p].num = tr[p].len = tr[p].pre = tr[p].suf = a[pl];
-        tr[p].num0 = tr[p].len0 = tr[p].pre0 = tr[p].suf0 = 1 - a[pl];
-        return;
-    }
-    int mid = (pl + pr) >> 1;
-    build(p << 1, pl, mid);
-    build(p << 1 | 1, mid + 1, pr);
-    push_up(p, pr - pl + 1);
-}
-
-// 区间更新
-void update(int l, int r, int d, int p, int pl, int pr) {
+void update(int l, int r, int op, int c, int p, int pl, int pr) {
     if (l <= pl && r >= pr) {
-        if (d == 1) { // 区间赋0
-            tr[p].clear();
-            tr[p].add1 = 1;
-        } else if (d == 2) { // 区间赋1
-            tr[p].clear();
-            tr[p].add2 = 1;
-        } else if (d == 3) { // 区间反转
-            if (tr[p].add1 || tr[p].add2) {
-                swap(tr[p].add1, tr[p].add2);
-            } else {
-                tr[p].add3 ^= 1;
-            }
+        int len = (pr - pl + 1);
+        if (op == 1) {
+            tr[p].add = (tr[p].add + c) % mod;
+            tr[p].sum3 = (tr[p].sum3 + 3 * c % mod * tr[p].sum2 % mod + 3 * c % mod * c % mod * tr[p].sum1 % mod + len * c % mod * c % mod * c % mod) % mod;
+            tr[p].sum2 = (tr[p].sum2 + 2 * c % mod * tr[p].sum1 % mod + len * c % mod * c % mod) % mod;
+            tr[p].sum1 = (tr[p].sum1 + len * c % mod) % mod;
+        } else if (op == 2) {
+            tr[p].add = tr[p].add * c % mod;
+            tr[p].muti = tr[p].muti * c % mod;
+            tr[p].sum1 = tr[p].sum1 * c % mod;
+            tr[p].sum2 = tr[p].sum2 * c % mod * c % mod;
+            tr[p].sum3 = tr[p].sum3 * c % mod * c % mod * c % mod;
+        } else if (op == 3) {
+            tr[p].add = 0;
+            tr[p].muti = 1;
+            tr[p].change = c;
+            tr[p].sum1 = len * c % mod;
+            tr[p].sum2 = len * c % mod * c % mod;
+            tr[p].sum3 = len * c % mod * c % mod * c % mod;
         }
-        addtag(p, pr - pl + 1);
         return;
     }
     push_down(p, pl, pr);
     int mid = (pl + pr) >> 1;
-    if (l <= mid) update(l, r, d, p << 1, pl, mid);
-    if (r > mid) update(l, r, d, p << 1 | 1, mid + 1, pr);
-    push_up(p, pr - pl + 1);
+    if (l <= mid) update(l, r, op, c, p<<1, pl, mid);
+    if (r > mid) update(l, r, op, c, p<<1|1, mid+1, pr);
+    push_up(p);
 }
 
-// 查询区间1的个数
-int query_num(int l, int r, int p, int pl, int pr) {
-    if (l <= pl && r >= pr) return tr[p].num;
-    push_down(p, pl, pr);
-    int mid = (pl + pr) >> 1;
-    int ans = 0;
-    if (l <= mid) ans += query_num(l, r, p << 1, pl, mid);
-    if (r > mid) ans += query_num(l, r, p << 1 | 1, mid + 1, pr);
-    return ans;
-}
-
-// 查询区间最大连续1的长度
-int query_len(int l, int r, int p, int pl, int pr) {
-    if (l <= pl && r >= pr) return tr[p].len;
-    push_down(p, pl, pr);
-    int mid = (pl + pr) >> 1;
-    int ans = 0;
-    if (l <= mid) ans = max(ans, query_len(l, r, p << 1, pl, mid));
-    if (r > mid) ans = max(ans, query_len(l, r, p << 1 | 1, mid + 1, pr));
-    if (l <= mid && r > mid) { // 跨区间的情况
-        ans = max(ans, min(mid - l + 1, tr[p << 1].suf) + min(r - mid, tr[p << 1 | 1].pre));
+ll query(int l, int r, int op, int p, int pl, int pr) {
+    if (l <= pl && r >= pr) {
+        if (op == 1) return tr[p].sum1;
+        if (op == 2) return tr[p].sum2;
+        if (op == 3) return tr[p].sum3;
     }
+    push_down(p, pl, pr);
+    ll ans = 0;
+    int mid = (pl + pr) >> 1;
+    if (l <= mid) ans = (ans + query(l, r, op, p<<1, pl, mid)) % mod;
+    if (r > mid) ans = (ans + query(l, r, op, p<<1|1, mid+1, pr)) % mod;
     return ans;
 }
+
+int n, m;
 
 void solve() {
-    int n, m;
-    cin >> n >> m;
-    for (int i = 1; i <= n; i++) cin >> a[i];
     build(1, 1, n);
     while (m--) {
-        int op, l, r;
-        cin >> op >> l >> r;
-        l++, r++;
-        if (op == 0) update(l, r, 1, 1, 1, n); // 区间赋0
-        else if (op == 1) update(l, r, 2, 1, 1, n); // 区间赋1
-        else if (op == 2) update(l, r, 3, 1, 1, n); // 区间反转
-        else if (op == 3) cout << query_num(l, r, 1, 1, n) << "\n"; // 查询区间1的个数
-        else if (op == 4) cout << query_len(l, r, 1, 1, n) << "\n"; // 查询最大连续1的长度
+        int op, x, y, c;
+        cin >> op >> x >> y >> c;
+        if (op == 1 || op == 2 || op == 3) {
+            update(x, y, op, c, 1, 1, n);
+        } else if (op == 4) {
+            cout << query(x, y, c, 1, 1, n) % mod << endl;
+        }
     }
 }
 
 int main() {
     ios::sync_with_stdio(0);
-    cin.tie(0);
-    cout.tie(0);
-    int t = 1;
-    cin >> t;
-    while (t--) solve();
+    cin.tie(0); cout.tie(0);
+    while (cin >> n >> m) {
+        if (n == 0 && m == 0) break;
+        solve();
+    }
     return 0;
 }
