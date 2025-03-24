@@ -1957,6 +1957,292 @@
 //     }
 // }
 
+
+///* 扫描线 *///
+
+/*hdu 1542 Atlantis*/ //矩形面积并 
+/*2025.3.24*/
+// #include<bits/stdc++.h>
+// using namespace std;
+// #define ll long long
+// const int N = 1e5+10;
+// struct{
+//     double x1,x2,y;
+//     int inout;
+// }line[N<<2];
+// struct{
+//     int tag;double length;
+// }tr[N<<2];
+// double xx[N<<2];int n,m = 0;
+// void push_up(int p,int pl,int pr){
+//     if(tr[p].tag){
+//         tr[p].length = xx[pr] - xx[pl];
+//     }else if(pl+1 == pr){
+//         tr[p].length = 0;
+//     }else{
+//         tr[p].length = tr[p<<1].length + tr[p<<1|1].length;
+//     }
+// }
+// void update(int l,int r,int io,int p,int pl,int pr){
+//     if(l <= pl && r >= pr){
+//         tr[p].tag += io;
+//         push_up(p,pl,pr);
+//         return;
+//     }
+//     if(pl+1 == pr) return;
+//     int mid = (pl+pr) >> 1;
+//     if(l <= mid) update(l,r,io,p<<1,pl,mid);
+//     if(r >= mid+1) update(l,r,io,p<<1|1,mid,pr);
+//     push_up(p,pl,pr);
+// }
+// void solve(){
+//     memset(tr,0,sizeof tr);
+//     int cnt = 0;m++;
+//     for(int i = 1; i <= n; i++){
+//         double x1,y1,x2,y2;cin >> x1 >> y1 >> x2 >> y2;
+//         line[++cnt] = {x1,x2,y1,1};
+//         xx[cnt] = x1;
+//         line[++cnt] = {x1,x2,y2,-1};
+//         xx[cnt] = x2;
+//     }
+//     sort(xx+1,xx+cnt+1);
+//     sort(line+1,line+cnt+1,[](auto a,auto b){
+//         return a.y < b.y;
+//     });
+//     int num = unique(xx+1,xx+cnt+1) - (xx+1);
+//     double ans = 0;
+//     for(int i = 1; i <= cnt; i++){
+//         ans += tr[1].length*(line[i].y-line[i-1].y);
+//         int l = lower_bound(xx+1,xx+num+1,line[i].x1) - xx;
+//         int r = lower_bound(xx+1,xx+num+1,line[i].x2) - xx;
+//         update(l,r,line[i].inout,1,1,num);
+//     }
+//     cout << "Test case #" << m << "\n";
+//     cout << "Total explored area: "<<fixed << setprecision(2) << ans << "\n";
+// }
+// int main(){
+//     ios::sync_with_stdio(0);
+//     cin.tie(0);cout.tie(0);
+//     int t = 1;//cin >> t;
+//     while(cin >> n){
+//         if(n == 0) break;
+//         solve();
+//     }
+// }
+/*2025.3.23 题解*/ //注意[左闭右开)
+// #include<bits/stdc++.h>
+// using namespace std;
+// #define ll long long
+// const int N = 2e5+3;
+// int tag[N];double length[N],xx[N]; //用线段树维护length
+// struct ScanLine{ //扫描线
+//     double y;
+//     double right_x,left_x;
+//     int inout;
+// }line[N];
+// void push_up(int p,int pl,int pr){
+//     if(tag[p]) length[p] = xx[pr] - xx[pl]; //这里的区间是[左闭右开)
+//     else if(pl + 1 == pr) length[p] = 0;
+//     else length[p] = length[p<<1] + length[p<<1|1];
+// }
+// void update(int l,int r,int io,int p,int pl,int pr){
+//     if(l <= pl && r >= pr){
+//         tag[p] += io;
+//         push_up(p,pl,pr);
+//         return;
+//     }
+//     if(pl+1 == pr) return;
+//     int mid = (pl + pr) >> 1;
+//     if(l <= mid) update(l,r,io,p<<1,pl,mid);
+//     if(r >= mid+1) update(l,r,io,p<<1|1,mid,pr); //注意是mid
+//     push_up(p,pl,pr); 
+// }
+// int n;int t = 0;
+// void solve(){
+//     t++;
+//     int cnt = 0;
+//     for(int i = 1; i <= n; i++){
+//         double x1,x2,y1,y2;cin >> x1 >> y1 >> x2 >> y2;
+//         line[++cnt] = {y1,x2,x1,1};
+//         xx[cnt] = x1;
+//         line[++cnt] = {y2,x2,x1,-1};
+//         xx[cnt] = x2;
+//     }
+//     sort(xx+1,xx+1+cnt);
+//     sort(line+1,line+1+cnt,[](auto a,auto b){
+//         return a.y < b.y;
+//     });
+//     int num = unique(xx+1,xx+cnt+1) - (xx+1);
+//     memset(tag,0,sizeof tag);
+//     memset(length,0,sizeof length);
+//     double ans = 0;
+//     for(int i = 1;i <= cnt;i++){
+//         ans += length[1]*(line[i].y-line[i-1].y);
+//         int l = lower_bound(xx+1,xx+num+1,line[i].left_x) - xx; //离散化后的相对位置
+//         int r = lower_bound(xx+1,xx+num+1,line[i].right_x) - xx;
+//         update(l,r,line[i].inout,1,1,num);
+//     }
+//     cout << "Test case #" << t << "\n";
+//     cout << "Total explored area: " << fixed << setprecision(2) << ans << "\n";
+// }
+// int main(){
+//     ios::sync_with_stdio(0);
+//     cin.tie(0);cout.tie(0);
+//     int t = 1;//cin >> t;
+//     while(cin >> n){
+//         if(n == 0) break;
+//         solve();
+//     }
+//     return 0;
+// }
+
+/*P1856 [IOI 1998 ] [USACO5.5] 矩形周长Picture*/ //矩形周长并
+/*2025.3.24*/
+// #include<bits/stdc++.h>
+// using namespace std;
+// #define ll long long
+// const int N = 5e4+10;
+// struct {
+//     int x1,x2,y;
+//     int inout;
+// }line[N<<2];
+// struct{
+//     int length;
+//     int tag;
+//     int lbd,rbd;
+//     int num;
+// }tr[N<<2];
+// void push_up(int p,int pl,int pr){
+//     if(tr[p].tag){
+//         tr[p].length = pr-pl+1;
+//         tr[p].lbd = tr[p].rbd = tr[p].num = 1;
+//     }else if(pl == pr){
+//         tr[p].length = tr[p].num = tr[p].lbd = tr[p].rbd = 0;
+//     }else{
+//         tr[p].length = tr[p<<1].length + tr[p<<1|1].length;
+//         tr[p].num = tr[p<<1].num + tr[p<<1|1].num;
+//         tr[p].lbd = tr[p<<1].lbd; tr[p].rbd = tr[p<<1|1].rbd;
+//         if(tr[p<<1].rbd&&tr[p<<1|1].lbd){
+//             tr[p].num -= 1;
+//         }
+//     }
+// }
+// void update(int l,int r,int io,int p,int pl,int pr){
+//     if(l <= pl && r >= pr){
+//         tr[p].tag += io;
+//         push_up(p,pl,pr);
+//         return;
+//     }
+//     int mid = (pl+pr) >> 1;
+//     if(l <= mid) update(l,r,io,p<<1,pl,mid);
+//     if(r >= mid+1) update(l,r,io,p<<1|1,mid+1,pr);
+//     push_up(p,pl,pr);
+// }
+// void solve(){
+//     int n;cin >> n;int cnt = 0;
+//     int lbd = 1e4; int rbd = -1e4;
+//     for(int i = 1; i <= n; i++){
+//         int x1,y1,x2,y2;cin >> x1 >> y1 >> x2 >> y2;
+//         lbd = min(lbd,x1);rbd = max(rbd,x2);
+//         line[++cnt] = {x1,x2,y1,1};
+//         line[++cnt] = {x1,x2,y2,-1};
+//     }
+//     sort(line+1,line+1+cnt,[](auto a,auto b){
+//         if(a.y != b.y) return a.y < b.y;
+//         return a.inout > b.inout;
+//     });
+//     int last = 0;
+//     int ans = 0;
+//     for(int i = 1; i <= cnt; i++){
+//         if(line[i].x1 < line[i].x2){
+//             update(line[i].x1,line[i].x2-1,line[i].inout,1,lbd,rbd);
+//         } //用x2-1 避免重复计算长度
+//         ans += tr[1].num*2*(line[i+1].y - line[i].y);
+//         ans += abs(last-tr[1].length);
+//         last = tr[1].length;
+//     }
+//     cout << ans << "\n";
+// }
+// int main(){
+//     ios::sync_with_stdio(0);
+//     cin.tie(0);cout.tie(0);
+//     int t = 1;//cin >> t;
+//     while(t--){
+//         solve();
+//     }
+// }
+/*2025.3.23 题解 一次扫描*/
+// #include<bits/stdc++.h>
+// using namespace std;
+// #define ll long long
+// const int N  = 2e5+3;
+// struct ScanLine{
+//     int l,r,h,inout;
+// }line[N];
+// bool lbd[N<<2],rbd[N<<2]; //标记端点是否被覆盖
+// int num[N<<2],tag[N<<2],length[N<<2];
+// void push_up(int p,int pl,int pr){
+//     if(tag[p]){
+//         lbd[p] = rbd[p] = 1;
+//         length[p] = pr - pl + 1;
+//         num[p] = 1; //计算竖线
+//     }else if(pl == pr){
+//         length[p] = num[p] = lbd[p] = rbd[p] = 0;
+//     }else{
+//         lbd[p] = lbd[p<<1];
+//         rbd[p] = rbd[p<<1|1];
+//         length[p] = length[p<<1] + length[p<<1|1];
+//         num[p] = num[p<<1] + num[p<<1|1];
+//         if(lbd[p<<1|1] && rbd[p<<1]) num[p] -= 1;
+//     }
+// }
+// void update(int l,int r,int io,int p,int pl,int pr){
+//     if(l <= pl && r >= pr){
+//         tag[p] += io;
+//         push_up(p,pl,pr);
+//         return;
+//     }
+//     int mid = (pl + pr) >> 1;
+//     if(l <= mid) update(l,r,io,p<<1,pl,mid);
+//     if(r >= mid+1) update(l,r,io,p<<1|1,mid+1,pr);
+//     push_up(p,pl,pr);
+// }
+// int n;
+// void solve(){
+//     cin >> n;int cnt = 0;
+//     int lbd = 10000,rbd = -10000; //线段树的区间范围
+//     for(int i = 1; i <= n; i++){
+//         int x1,y1,x2,y2;cin >> x1 >> y1 >> x2 >> y2;
+//         lbd = min(lbd,x1);
+//         rbd = max(rbd,x2);
+//         line[++cnt] = {x1,x2,y1,1};
+//         line[++cnt] = {x1,x2,y2,-1};
+//     }
+//     sort(line+1,line+1+cnt,[](auto a,auto b){
+//         if(a.h!=b.h) return a.h < b.h;
+//         return a.inout > b.inout;
+//     });
+//     int ans = 0,last = 0;
+//     for(int i = 1; i <= cnt; i++){
+//         if(line[i].l < line[i].r){
+//             update(line[i].l,line[i].r-1,line[i].inout,1,lbd,rbd-1);
+//         }
+//         ans += num[1]*2*(line[i+1].h - line[i].h); //竖线
+//         ans += abs(length[1] - last);
+//         last = length[1];
+//     }
+//     cout << ans << "\n";
+// }
+// int main(){
+//     ios::sync_with_stdio(0);
+//     cin.tie(0);cout.tie(0);
+//     int t = 1;//cin >> t;
+//     while(t--){
+//         solve();
+//     }
+// }
+
+
 ///* 综合练习 *///
 
 /*hdu4578 Transformation*/ //很复杂，建议更熟悉线段树再写
@@ -2002,7 +2288,6 @@
 //         tr[p<<1].sum1 = lenl * tr[p].change % mod;
 //         tr[p<<1].sum2 = lenl * tr[p].change % mod * tr[p].change % mod;
 //         tr[p<<1].sum3 = lenl * tr[p].change % mod * tr[p].change % mod * tr[p].change % mod;
-
 //         tr[p<<1|1].sum1 = lenr * tr[p].change % mod;
 //         tr[p<<1|1].sum2 = lenr * tr[p].change % mod * tr[p].change % mod;
 //         tr[p<<1|1].sum3 = lenr * tr[p].change % mod * tr[p].change % mod * tr[p].change % mod;
