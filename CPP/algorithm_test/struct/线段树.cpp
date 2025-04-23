@@ -243,156 +243,163 @@
 
 /*hdu4614 Vases and Flowers*/ //二分
 /*2025.3.13*/
-// #include<bits/stdc++.h>
-// using namespace std;
-// #define int long long
-// const int N = 5e4+5;
-// struct {
-//     int sum,add,first,ends;
-// }tree[N << 2];
-// void build(int p,int pl,int pr){
-//     tree[p].add = 0,tree[p].first = pl,tree[p].ends = pr,tree[p].sum = 0;
-//     if(pl == pr) return;
-//     int mid = (pl + pr) >> 1;
-//     build(p<<1,pl,mid);
-//     build(p<<1|1,mid+1,pr);
-// }
-// void push_up(int p){
-//     tree[p].sum = tree[p << 1].sum + tree[p << 1 | 1].sum;
-//     if(tree[p << 1].first == -1) tree[p].first = tree[p<<1|1].first;
-//     else if(tree[p<<1|1].first == -1) tree[p].first = tree[p<<1].first;
-//     else tree[p].first = min(tree[p<<1].first,tree[p<<1|1].first);
-//     if(tree[p << 1].ends == -1) tree[p].ends = tree[p<<1|1].ends;
-//     else if(tree[p<<1|1].ends == -1) tree[p].ends = tree[p<<1].ends;
-//     else tree[p].ends = max(tree[p<<1].ends,tree[p<<1|1].ends);
-// }
-// void push_down(int p,int pl,int pr){
-//     int mid = (pl + pr) >> 1;
-//     if(tree[p].add == 1){
-//         tree[p << 1].add = tree[p << 1 | 1].add = 1;
-//         tree[p << 1].first = tree[p<<1|1].first = -1;
-//         tree[p<<1].ends = tree[p<<1|1].ends = -1;
-//         tree[p<<1].sum = mid - pl + 1;
-//         tree[p<<1|1].sum = pr - mid;
-//     }else if(tree[p].add == 2){
-//         tree[p << 1].add = tree[p << 1|1].add = 2;
-//         tree[p<<1].first = pl,tree[p<<1].ends = mid;
-//         tree[p<<1|1].first = mid+1,tree[p<<1|1].ends = pr;
-//         tree[p<<1].sum = tree[p<<1|1].sum = 0;
-//     }
-//     tree[p].add = 0;
-// }
-// void update(int l,int r,int p,int pl,int pr,int d){
-//     if(l <= pl && r >= pr){
-//         if(d == 1){
-//             tree[p].sum = pr - pl + 1;
-//             tree[p].first = tree[p].ends = -1;
-//             tree[p].add = 1;
-//         }else if(d == 2){
-//             tree[p].sum = 0;
-//             tree[p].first = pl,tree[p].ends = pr;
-//             tree[p].add = 2;
-//         }
-//         return;
-//     }
-//     push_down(p,pl,pr);
-//     int mid = (pl+pr) >> 1;
-//     if(l <= mid) update(l,r,p<<1,pl,mid,d);
-//     if(r >= mid+1) update(l,r,p<<1|1,mid+1,pr,d);
-//     push_up(p);
-// }
-// int query(int l,int r,int p,int pl,int pr){
-//     if(l <= pl && r >= pr){
-//         return tree[p].sum;
-//     }
-//     push_down(p,pl,pr);
-//     int ans = 0;
-//     int mid = (pl+pr) >> 1;
-//     if(l <= mid) ans += query(l,r,p<<1,pl,mid);
-//     if(r >= mid+1) ans += query(l,r,p<<1|1,mid+1,pr);
-//     return ans;
-// }
-// int n,m;
-// int find(int a,int sum){
-//     int l = a-1,r = n+1;
-//     while(l+1 < r){
-//         int mid = (l+r) >> 1;
-//         int res = query(a,mid,1,1,n);
-//         res = mid - a + 1 - res;
-//         if(res <= sum) l = mid;
-//         else r = mid; 
-//         //cout << "? " << res << " " << l << " " << r << "\n"; 
-//     }
-//     return r-1;
-// }
-// int queryfr(int l,int r,int p,int pl,int pr){
-//     if(l <= pl && r >= pr){
-//         return tree[p].first;
-//     }
-//     push_down(p,pl,pr);
-//     int ans = 1e9;
-//     int mid = (pl+pr) >> 1;
-//     if(l <= mid){
-//         int tmp = queryfr(l,r,p<<1,pl,mid);
-//         if(tmp != -1) ans = min(tmp,ans);
-//     }
-//     if(r >= mid+1){
-//         int tmp = queryfr(l,r,p<<1|1,mid+1,pr);
-//         if(tmp != -1) ans = min(tmp,ans);
-//     }
-//     return ans;
-// }
-// int queryed(int l,int r,int p,int pl,int pr){
-//     if(l <= pl && r >= pr){
-//         return tree[p].ends;
-//     }
-//     push_down(p,pl,pr);
-//     int ans = 0;
-//     int mid = (pl+pr) >> 1;
-//     if(l <= mid){
-//         int tmp = queryed(l,r,p<<1,pl,mid);
-//         if(tmp != -1) ans = max(tmp,ans);
-//     }
-//     if(r >= mid+1){
-//         int tmp = queryed(l,r,p<<1|1,mid+1,pr);
-//         if(tmp != -1) ans = max(tmp,ans);
-//     }
-//     return ans;
-// }
-// void solve(){
-//     cin >> n >> m;
-//     build(1,1,n);
-//     for(int i = 1; i <= m; i++){
-//         int op,a,b; cin >> op >> a >> b;
-//         if(op == 1){
-//             a++;
-//             int ends = find(a,b);
-//             ends = min(ends,n);
-//             //cout << "? " << a << " " << ends << "\n";
-//             if(query(a,ends,1,1,n) == ends - a + 1){
-//                 cout << "Can not put any one.\n";
-//             }else{
-//                 int first = queryfr(a,ends,1,1,n);
-//                 ends = queryed(first,ends,1,1,n);
-//                 update(first,ends,1,1,n,1);
-//                 cout << first-1 << " " << ends-1 << "\n";
-//             }
-//         }else{
-//             a++,b++;
-//             cout << query(a,b,1,1,n) << "\n";
-//             update(a,b,1,1,n,2);
-//         }
-//     }
-//     cout << "\n";
-// }
-// signed main(){
-//     ios::sync_with_stdio(0);
-//     cin.tie(0);cout.tie(0);
-//     int t = 1;cin >> t;
-//     while(t--){
-//         solve();
-//     }
-// }
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+const int N = 5e4+5;
+struct {
+    int sum,add,first,ends;
+}tree[N << 2];
+void build(int p,int pl,int pr){
+    tree[p].add = 0,tree[p].first = pl,tree[p].ends = pr,tree[p].sum = 0;
+    if(pl == pr) return;
+    int mid = (pl + pr) >> 1;
+    build(p<<1,pl,mid);
+    build(p<<1|1,mid+1,pr);
+}
+void push_up(int p){
+    tree[p].sum = tree[p << 1].sum + tree[p << 1 | 1].sum;
+    if(tree[p << 1].first == -1) tree[p].first = tree[p<<1|1].first;
+    else if(tree[p<<1|1].first == -1) tree[p].first = tree[p<<1].first;
+    else tree[p].first = min(tree[p<<1].first,tree[p<<1|1].first);
+    if(tree[p << 1].ends == -1) tree[p].ends = tree[p<<1|1].ends;
+    else if(tree[p<<1|1].ends == -1) tree[p].ends = tree[p<<1].ends;
+    else tree[p].ends = max(tree[p<<1].ends,tree[p<<1|1].ends);
+    //cout << "bug\n";
+}
+void push_down(int p,int pl,int pr){
+    int mid = (pl + pr) >> 1;
+    if(tree[p].add == 1){
+        tree[p << 1].add = tree[p << 1 | 1].add = 1;
+        tree[p << 1].first = tree[p<<1|1].first = -1;
+        tree[p<<1].ends = tree[p<<1|1].ends = -1;
+        tree[p<<1].sum = mid - pl + 1;
+        tree[p<<1|1].sum = pr - mid;
+    }else if(tree[p].add == 2){
+        tree[p << 1].add = tree[p << 1|1].add = 2;
+        tree[p<<1].first = pl,tree[p<<1].ends = mid;
+        tree[p<<1|1].first = mid+1,tree[p<<1|1].ends = pr;
+        tree[p<<1].sum = tree[p<<1|1].sum = 0;
+    }
+    tree[p].add = 0;
+}
+void update(int l,int r,int p,int pl,int pr,int d){
+    if(l <= pl && r >= pr){
+        if(d == 1){
+            tree[p].sum = pr - pl + 1;
+            tree[p].first = tree[p].ends = -1;
+            tree[p].add = 1;
+        }else if(d == 2){
+            tree[p].sum = 0;
+            tree[p].first = pl,tree[p].ends = pr;
+            tree[p].add = 2;
+        }
+        return;
+    }
+    push_down(p,pl,pr);
+    int mid = (pl+pr) >> 1;
+    if(l <= mid) update(l,r,p<<1,pl,mid,d);
+    if(r >= mid+1) update(l,r,p<<1|1,mid+1,pr,d);
+    push_up(p);
+    //cout << "bug3\n";
+}
+int query(int l,int r,int p,int pl,int pr){
+    if(l <= pl && r >= pr){
+        return tree[p].sum;
+    }
+    push_down(p,pl,pr);
+    int ans = 0;
+    int mid = (pl+pr) >> 1;
+    if(l <= mid) ans += query(l,r,p<<1,pl,mid);
+    if(r >= mid+1) ans += query(l,r,p<<1|1,mid+1,pr);
+    return ans;
+    //?
+    //cout << "bug\n";
+}
+int n,m;
+int find(int a,int sum){
+    int l = a-1,r = n+1;
+    while(l+1 < r){
+        int mid = (l+r) >> 1;
+        int res = query(a,mid,1,1,n);
+        res = mid - a + 1 - res;
+        if(res <= sum) l = mid;
+        else r = mid; 
+        cout << "? " << res << " " << l << " " << r << "\n"; 
+        //cout << "bug\n";
+    }
+    return r-1;
+}
+int queryfr(int l,int r,int p,int pl,int pr){
+    if(l <= pl && r >= pr){
+        return tree[p].first;
+    }
+    push_down(p,pl,pr);
+    int ans = 1e9;
+    int mid = (pl+pr) >> 1;
+    if(l <= mid){
+        int tmp = queryfr(l,r,p<<1,pl,mid);
+        if(tmp != -1) ans = min(tmp,ans);
+    }
+    if(r >= mid+1){ 
+        int tmp = queryfr(l,r,p<<1|1,mid+1,pr);
+        if(tmp != -1) ans = min(tmp,ans);
+        //cout << "bug\n";
+        // cout << "? " << tmp << "\n";
+    }
+    return ans;
+}
+int queryed(int l,int r,int p,int pl,int pr){
+    if(l <= pl && r >= pr){
+        return tree[p].ends;
+    }
+    push_down(p,pl,pr);
+    int ans = 0;
+    int mid = (pl+pr) >> 1;
+    if(l <= mid){
+        int tmp = queryed(l,r,p<<1,pl,mid);
+        if(tmp != -1) ans = max(tmp,ans);
+    }
+    if(r >= mid+1){
+        int tmp = queryed(l,r,p<<1|1,mid+1,pr);
+        if(tmp != -1) ans = max(tmp,ans);
+    }
+    return ans;
+}
+void solve(){
+    cin >> n >> m;
+    build(1,1,n);
+    for(int i = 1; i <= m; i++){
+        int op,a,b; cin >> op >> a >> b;
+        if(op == 1){
+            a++;
+            int ends = find(a,b);
+            ends = min(ends,n);
+            //cout << "? " << a << " " << ends << "\n";
+            if(query(a,ends,1,1,n) == ends - a + 1){
+                cout << "Can not put any one.\n";
+            }else{
+                int first = queryfr(a,ends,1,1,n);
+                ends = queryed(first,ends,1,1,n);
+                update(first,ends,1,1,n,1);
+                cout << first-1 << " " << ends-1 << "\n";
+            }
+        }else{
+            a++,b++;
+            //cout << query(a,b,1,1,n) << "\n";
+            update(a,b,1,1,n,2);
+        }
+    }
+    //cout << "\n";
+}
+signed main(){
+    ios::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);
+    int t = 1;cin >> t;
+    while(t--){
+        solve();
+    }
+}
 /*2025.3.12*/
 // #include<bits/stdc++.h>
 // using namespace std;
